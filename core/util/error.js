@@ -44,6 +44,8 @@ export function invokeWithErrorHandling (
   try {
     res = args ? handler.apply(context, args) : handler.call(context)
     if (res && !res._isVue && isPromise(res) && !res._handled) {
+      // handleError 可以依次调用父组件errorCaptured钩子函数 和 全局的config.errorHandler 
+      // 这也是为什么生命周期钩子函数 errorvCaptured可以捕获子孙组件的错误
       res.catch(e => handleError(e, vm, info + ` (Promise/async)`))
       // issue #9511
       // avoid catch triggering multiple times when nested calls

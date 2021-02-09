@@ -59,6 +59,7 @@ export function updateListeners (
   vm: Component
 ) {
   let name, def, cur, old, event
+  // 判断哪些事件在 oldOn中不存在  用add注册事件
   for (name in on) {
     def = cur = on[name]
     old = oldOn[name]
@@ -68,12 +69,15 @@ export function updateListeners (
       cur = def.handler
       event.params = def.params
     }
+
     if (isUndef(cur)) {
+      // 事件名在on中对应的值 是为undefined 或 null
       process.env.NODE_ENV !== 'production' && warn(
         `Invalid handler for event "${event.name}": got ` + String(cur),
         vm
-      )
+        )
     } else if (isUndef(old)) {
+      // 事件名在oldOn中对应的值的 是为undefined 或 null
       if (isUndef(cur.fns)) {
         cur = on[name] = createFnInvoker(cur, vm)
       }
@@ -82,10 +86,12 @@ export function updateListeners (
       }
       add(event.name, cur, event.capture, event.passive, event.params)
     } else if (cur !== old) {
+      // 都存在 但是不相同 
       old.fns = cur
       on[name] = old
     }
   }
+    // 判断哪些事件在 on中不存在  用remove注册事件
   for (name in oldOn) {
     if (isUndef(on[name])) {
       event = normalizeEvent(name)

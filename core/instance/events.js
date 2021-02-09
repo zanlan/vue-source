@@ -9,22 +9,36 @@ import {
 } from '../util/index'
 import { updateListeners } from '../vdom/helpers/index'
 
+
+/*
+ 模板编译 和 虚拟dom
+ 模板编译阶段 可以得到所有属性(v-on事件),将整个模板编译 成 渲染函数  渲染函数就是嵌套在一起的创建元素节点的函数 _c(tagName,data,children)
+ 当启动渲染流程时 渲染函数会被执行,生成一份Vnode,虚拟dom会使用vnode进行对比与渲染,并创建元素,判断当前标签是否是组件 
+ 如果是组件,则实例化它,传递一些参数 包含v-on注册在子组件vue.js事件系统中 子组件
+ 子组件初始化时 接受父组件传来的注册事件   而子组件自己注册的事件,只有在渲染时根据虚拟dom对比结果,判断是注册事件 还是 解绑事件
+ 如果是真标签 创建dom时,则将v-on转换为浏览器事件
+*/
 export function initEvents (vm: Component) {
+
+  // 所有v-on注册的事件都是存储在_events
   vm._events = Object.create(null)
   vm._hasHookEvent = false
-  // init parent attached events
+//  当子组件被实例化时 可以在参数中获取 父组件给子组件的事件 这些事件保存在_parentListeners中
   const listeners = vm.$options._parentListeners
   if (listeners) {
+    // 将父组件传递给子组件的 事件 注册到子组件实例中
     updateComponentListeners(vm, listeners)
   }
 }
 
 let target: any
 
+// 添加事件
 function add (event, fn) {
   target.$on(event, fn)
 }
 
+// 移除事件
 function remove (event, fn) {
   target.$off(event, fn)
 }

@@ -36,6 +36,7 @@ export function initMixin (Vue: Class<Component>) {
         第三个是vue对象本身
       */
       vm.$options = mergeOptions(
+        // 获取当前实例构造函数options  和  父级实例构造函数options 当前vue实例可能是子组件所以有父级
         resolveConstructorOptions(vm.constructor),
         options || {},
         vm
@@ -49,12 +50,14 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
+
+    // 初始化事件和属性
     initLifecycle(vm)
     initEvents(vm)
     initRender(vm)
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
-    initState(vm)
+    initState(vm) //状态 props methods data computed watch
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')
     /* istanbul ignore if */
@@ -63,11 +66,13 @@ export function initMixin (Vue: Class<Component>) {
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
+    // 判断用户是否传了el属性 传了就挂载
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
   }
 }
+
 
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   const opts = vm.$options = Object.create(vm.constructor.options)

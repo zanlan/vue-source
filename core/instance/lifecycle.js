@@ -31,17 +31,19 @@ export function setActiveInstance(vm: Component) {
 
 export function initLifecycle (vm: Component) {
   const options = vm.$options
-
-  // locate first non-abstract parent
   let parent = options.parent
-  if (parent && !options.abstract) {
+  if (options.parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
     }
+    // 当前实例添加到父组件实例的$children属性中
     parent.$children.push(vm)
   }
 
+// 需要找到 一个非抽象类型的父级
   vm.$parent = parent
+  // 没有父组件 则自己就是根组件 
+  // 有父组件的子组件，则沿用父组件的$root 所以子组件的$rout还是 父组件  以此类推
   vm.$root = parent ? parent.$root : vm
 
   vm.$children = []
